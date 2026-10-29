@@ -98,6 +98,7 @@ function card(match) {
   button.disabled = !embedUrl;
 
   button.addEventListener("click", () => {
+    console.log("Matchora embed URL:", embedUrl);
     player.src = embedUrl;
     document.querySelector("#playerTitle").textContent =
       `${text(match.home)} vs ${text(match.away)}`;
