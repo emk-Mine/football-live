@@ -6,35 +6,21 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#101218">
   <meta name="description"
-        content="Live football matches, scores and fixtures.">
-  <title>Football Live</title>
+      content="Live sports, scores, fixtures and available streams.">
+  <title>Sports Live</title>
   <link rel="stylesheet" href="/style.css">
   <script src="/script.js" defer></script>
 </head>
 <body>
   <aside class="sidebar">
-    <a href="/" class="brand"><span>F</span> Football Live</a>
+    <a href="/" class="brand"><span>S</span> Sports Live</a>
 
     <p class="nav-heading">MENU</p>
-    <button class="nav active" data-view="live">🔴 Live matches</button>
-    <button class="nav" data-view="upcoming">📅 Upcoming</button>
+    <button class="nav active" data-view="live">🔴 Live events</button>
+    <button class="nav" data-view="upcoming">📅 Upcoming events</button>
 
-    <p class="nav-heading">COMPETITIONS</p>
-    <button class="nav league" data-league="Premier League">
-      Premier League
-    </button>
-    <button class="nav league" data-league="Champions League">
-      Champions League
-    </button>
-    <button class="nav league" data-league="La Liga">La Liga</button>
-    <button class="nav league" data-league="Serie A">Serie A</button>
-    <button class="nav league" data-league="Bundesliga">Bundesliga</button>
-    <button class="nav league" data-league="Ligue 1">Ligue 1</button>
-
-    <div class="sidebar-bottom">
-      Independent football website<br>
-      Match availability depends on the provider.
-    </div>
+    <p class="nav-heading">SPORTS</p>
+  <div id="sportsNav"></div>
   </aside>
 
   <main class="main">
@@ -63,7 +49,7 @@
   loading="lazy"></iframe>
       </div>
       <p class="notice">
-        The match player is provided by Matchora and may include its own ads.
+        enjoy.
       </p>
     </section>
 
@@ -78,8 +64,8 @@
 
       <div id="matchGrid" class="match-grid"></div>
       <p id="emptyState" class="empty-state" hidden>
-        No football matches are available in this section right now.
-      </p>
+  No events are available in this section right now.
+</p>
       <button id="loadMore" class="load-more" hidden>Load more</button>
     </section>
 

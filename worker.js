@@ -6,7 +6,7 @@ export default {
     const url = new URL(request.url);
 
     if (url.pathname === "/api/live") {
-      return fetchFootball(`${API}/live`);
+      return fetchEvents(`${API}/live`);
     }
 
     if (url.pathname === "/api/schedule") {
@@ -19,7 +19,7 @@ export default {
         );
       }
 
-      return fetchFootball(
+      return fetchEvents(
         `${API}/schedule?date=${date}&watchable=1`
       );
     }
@@ -28,7 +28,7 @@ export default {
   }
 };
 
-async function fetchFootball(apiUrl) {
+async function fetchEvents(apiUrl) {
   try {
     const response = await fetch(apiUrl, {
       headers: { Accept: "application/json" }
@@ -51,13 +51,9 @@ async function fetchFootball(apiUrl) {
           ? data.body
           : [];
 
-    const football = events.filter(match => {
-      const sport = String(match.sport || "").toLowerCase();
-      return sport === "football" || sport === "soccer";
-    });
-
+    // Keep all sports. Do not filter out non-football events.
     return Response.json(
-      { events: football },
+      { events },
       {
         headers: {
           "Cache-Control": "public, max-age=15"
@@ -66,7 +62,7 @@ async function fetchFootball(apiUrl) {
     );
   } catch {
     return Response.json(
-      { error: "Unable to load matches. Please try again." },
+      { error: "Unable to load events. Please try again." },
       { status: 502 }
     );
   }

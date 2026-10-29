@@ -7,7 +7,7 @@ const playerSection = document.querySelector("#playerSection");
 const player = document.querySelector("#matchPlayer");
 
 let view = "live";
-let selectedLeague = "";
+let selectedSport = "";
 let allMatches = [];
 let page = 1;
 const pageSize = 12;
@@ -60,30 +60,93 @@ function safeEmbedUrl(match) {
   return "";
 }
 
+
+function firstText(...values) {
+  for (const value of values) {
+    if (typeof value === "string" && value.trim()) {
+      return value.trim();
+    }
+  }
+  return "";
+}
+
+function getSport(match) {
+  return firstText(match.sport, match.category, match.sport_name, "Other");
+}
+
+function getCompetition(match) {
+  return firstText(
+    match.league,
+    match.competition,
+    match.tournament,
+    match.league_name,
+    "Competition not specified"
+  );
+}
+
+function getParticipant(match, side) {
+  const isHome = side === "home";
+  const direct = isHome
+    ? [match.home, match.home_team, match.homeTeam, match.player1]
+    : [match.away, match.away_team, match.awayTeam, match.player2];
+
+  const name = firstText(...direct);
+
+  if (name) return name;
+
+  const participants = Array.isArray(match.participants)
+    ? match.participants
+    : [];
+
+  const participant = participants[isHome ? 0 : 1];
+
+  if (typeof participant === "string") return participant;
+  if (participant && typeof participant === "object") {
+    return firstText(participant.name, participant.title, participant.team);
+  }
+
+  return "";
+}
+
 function card(match) {
   const article = document.createElement("article");
   article.className = "match-card";
 
-  const league = document.createElement("div");
-  league.className = "match-league";
-  league.textContent = text(match.league, "Football");
+  const sport = document.createElement("div");
+  sport.className = "match-league";
+  sport.textContent = getSport(match);
+
+  const competition = document.createElement("div");
+  competition.className = "match-status";
+  competition.textContent = getCompetition(match);
+
+  const homeName = getParticipant(match, "home");
+  const awayName = getParticipant(match, "away");
+  const eventTitle = firstText(match.title, match.name, match.event_name);
 
   const teams = document.createElement("div");
   teams.className = "teams";
 
-  const home = document.createElement("div");
-  home.className = "team";
-  home.textContent = text(match.home, "Home");
+  if (homeName && awayName) {
+    const home = document.createElement("div");
+    home.className = "team";
+    home.textContent = homeName;
 
-  const score = document.createElement("div");
-  score.className = "score";
-  score.textContent = scoreText(match);
+    const score = document.createElement("div");
+    score.className = "score";
+    score.textContent = scoreText(match);
 
-  const away = document.createElement("div");
-  away.className = "team";
-  away.textContent = text(match.away, "Away");
+    const away = document.createElement("div");
+    away.className = "team";
+    away.textContent = awayName;
 
-  teams.append(home, score, away);
+    teams.append(home, score, away);
+  } else {
+    const title = document.createElement("div");
+    title.className = "team";
+    title.textContent = eventTitle || homeName || awayName || "Event";
+    teams.append(title);
+  }
 
   const status = document.createElement("div");
   status.className = "match-status";
@@ -94,21 +157,24 @@ function card(match) {
 
   const embedUrl = safeEmbedUrl(match);
 
-  button.textContent = embedUrl ? "▶ Watch match" : "Stream unavailable";
+  button.textContent = embedUrl ? "▶ Watch event" : "Stream unavailable";
   button.disabled = !embedUrl;
 
   button.addEventListener("click", () => {
-    console.log("Matchora embed URL:", embedUrl);
     player.src = embedUrl;
     document.querySelector("#playerTitle").textContent =
-      `${text(match.home)} vs ${text(match.away)}`;
+      homeName && awayName
+        ? `${homeName} vs ${awayName}`
+        : eventTitle || homeName || awayName || "Watch event";
+
     playerSection.hidden = false;
     playerSection.scrollIntoView({ behavior: "smooth", block: "start" });
   });
 
-  article.append(league, teams, status, button);
+  article.append(sport, competition, teams, status, button);
   return article;
 }
+
 
 async function loadMatches() {
   count.textContent = "Loading matches...";
@@ -127,7 +193,8 @@ async function loadMatches() {
     const data = await response.json();
     allMatches = Array.isArray(data.events) ? data.events : [];
 
-    renderMatches();
+updateSportsNav();
+renderMatches();
   } catch {
     count.textContent = "Unable to load matches.";
     empty.textContent =
@@ -138,29 +205,32 @@ async function loadMatches() {
 
 function renderMatches() {
   const filtered = allMatches.filter(match => {
-    if (!selectedLeague) return true;
-    return text(match.league).toLowerCase()
-      .includes(selectedLeague.toLowerCase());
+    if (!selectedSport) return true;
+
+    return getSport(match).toLowerCase() === selectedSport.toLowerCase();
   });
 
   const visible = filtered.slice(0, page * pageSize);
 
   grid.replaceChildren(...visible.map(card));
-  count.textContent = `${filtered.length} football match${filtered.length === 1 ? "" : "es"}`;
+  count.textContent =
+    `${filtered.length} event${filtered.length === 1 ? "" : "s"}`;
+
   empty.hidden = filtered.length > 0;
+  empty.textContent = "No events are available in this section right now.";
   loadMore.hidden = visible.length >= filtered.length;
 
   document.querySelector("#pageTitle").textContent =
-    view === "live" ? "Live football" : "Upcoming football";
+    view === "live" ? "Live sports" : "Upcoming sports";
 
   document.querySelector("#sectionTitle").textContent =
-    selectedLeague || (view === "live" ? "Live now" : "Upcoming matches");
+    selectedSport || (view === "live" ? "Live now" : "Upcoming events");
 }
 
 document.querySelectorAll("[data-view]").forEach(button => {
   button.addEventListener("click", () => {
     view = button.dataset.view;
-    selectedLeague = "";
+    selectedSport = "";
     page = 1;
     document.querySelectorAll(".nav").forEach(nav =>
       nav.classList.toggle("active", nav === button)
@@ -170,7 +240,34 @@ document.querySelectorAll("[data-view]").forEach(button => {
   });
 });
 
-document.querySelectorAll("[data-league]").forEach(button => {
+function updateSportsNav() {
+  const sportsNav = document.querySelector("#sportsNav");
+  const sports = [...new Set(allMatches.map(getSport))]
+    .filter(Boolean)
+    .sort((a, b) => a.localeCompare(b));
+
+  sportsNav.replaceChildren();
+
+  for (const sportName of sports) {
+    const button = document.createElement("button");
+    button.className = "nav league";
+    button.textContent = sportName;
+
+    button.addEventListener("click", () => {
+      selectedSport = sportName;
+      page = 1;
+
+      document.querySelectorAll(".nav").forEach(nav =>
+        nav.classList.toggle("active", nav === button)
+      );
+
+      renderMatches();
+      document.querySelector(".sidebar").classList.remove("open");
+    });
+
+    sportsNav.append(button);
+  }
+} forEach(button => {
   button.addEventListener("click", () => {
     selectedLeague = button.dataset.league;
     page = 1;
