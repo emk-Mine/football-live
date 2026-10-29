@@ -1,0 +1,88 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#101218">
+  <meta name="description"
+        content="Live football matches, scores and fixtures.">
+  <title>Football Live</title>
+  <link rel="stylesheet" href="/style.css">
+  <script src="/script.js" defer></script>
+</head>
+<body>
+  <aside class="sidebar">
+    <a href="/" class="brand"><span>F</span> Football Live</a>
+
+    <p class="nav-heading">MENU</p>
+    <button class="nav active" data-view="live">🔴 Live matches</button>
+    <button class="nav" data-view="upcoming">📅 Upcoming</button>
+
+    <p class="nav-heading">COMPETITIONS</p>
+    <button class="nav league" data-league="Premier League">
+      Premier League
+    </button>
+    <button class="nav league" data-league="Champions League">
+      Champions League
+    </button>
+    <button class="nav league" data-league="La Liga">La Liga</button>
+    <button class="nav league" data-league="Serie A">Serie A</button>
+    <button class="nav league" data-league="Bundesliga">Bundesliga</button>
+    <button class="nav league" data-league="Ligue 1">Ligue 1</button>
+
+    <div class="sidebar-bottom">
+      Independent football website<br>
+      Match availability depends on the provider.
+    </div>
+  </aside>
+
+  <main class="main">
+    <header class="topbar">
+      <button id="menuToggle" class="menu-toggle"
+              aria-label="Open navigation">☰</button>
+      <div>
+        <h1 id="pageTitle">Live football</h1>
+        <p>Matches, scores and available streams</p>
+      </div>
+      <button id="refresh" class="refresh">↻ Refresh</button>
+    </header>
+
+    <section id="playerSection" class="player-section" hidden>
+      <div class="player-heading">
+        <h2 id="playerTitle">Watch match</h2>
+        <button id="closePlayer" class="close-player">Close ✕</button>
+      </div>
+      <div class="player-frame">
+        <iframe id="matchPlayer" title="Football match player"
+          allow="autoplay; fullscreen"
+          allowfullscreen
+          referrerpolicy="strict-origin-when-cross-origin"></iframe>
+      </div>
+      <p class="notice">
+        The match player is provided by Matchora and may include its own ads.
+      </p>
+    </section>
+
+    <section class="content">
+      <div class="section-heading">
+        <div>
+          <h2 id="sectionTitle">Live now</h2>
+          <p id="resultCount">Loading matches...</p>
+        </div>
+        <span class="live-label"><span></span> LIVE</span>
+      </div>
+
+      <div id="matchGrid" class="match-grid"></div>
+      <p id="emptyState" class="empty-state" hidden>
+        No football matches are available in this section right now.
+      </p>
+      <button id="loadMore" class="load-more" hidden>Load more</button>
+    </section>
+
+    <footer>
+      Independent website. Not affiliated with any football league or club.
+    </footer>
+  </main>
+</body>
+</html>
